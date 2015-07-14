@@ -1,0 +1,123 @@
+/*Create a database*/
+create database if not exists ideation;
+show databases;
+
+/* Dropping all tables*/
+drop table superadmin;
+drop table screens;
+drop table user_role;
+drop table user_group_asso;
+drop table groups;
+drop table roles;
+drop table notifications;
+drop table message;
+drop table approval;
+drop table idea_attachment;
+drop table idea;
+drop table user;
+
+
+/*USE DATABASE*/
+use ideation;
+
+/*CREATE USER TABLE FIRST*/
+create table user(user_id VARCHAR(30) NOT NULL,user_name VARCHAR(50),email VARCHAR(50),password VARCHAR(40),date_joined DATE,
+level INT,layer INT,no_of_ideas INT,mobile_no VARCHAR(20),manager_id_1 VARCHAR(30),
+manager_id_2 VARCHAR(30),panelist_flag BOOLEAN,valid BOOLEAN NOT NULL, PRIMARY KEY (user_id));
+
+/*SAMPLE INSERT STATEMENT*/
+insert into user values('varun1','Varun Bezzam','varun.bezzam@gmail.com','varun@123','1994-12-02',3,3,4,'8056032025','dhiwa1',''
+,true,true);
+insert into user values('mal1','MAlini Raj','malini.christina@gmail.com','mal@123','1994-12-02',3,3,4,'9940102688','dhiwa1',''
+,true,true);
+insert into user values('dhiwa1','Dhiwakarr','dhiwa@gmail.com','dhiw','1994-12-02',8,3,4,'8355737554','',''
+,true,true);
+
+/*CREATE IDEA TABLE NEXT*/
+create table idea(idea_id INT UNSIGNED NOT NULL AUTO_INCREMENT,user_id VARCHAR(30) NOT NULL,title VARCHAR(80),idea_body TEXT,date_added DATE,no_of_views INT,date_approved DATE,
+no_of_votes INT,draft BOOLEAN,status VARCHAR(50),PRIMARY KEY(idea_id),FOREIGN KEY(user_id) references
+user(user_id));
+
+/*SAMPLE INSERT STATEMENT*/
+insert into idea values(1,'varun1','Test','This is a test','1998-01-01',2,'1998-02-02',
+3,false,'Approved');
+
+/*CREATE IDEA_ATTACHMENT TABLE NEXT*/  
+create table idea_attachment(idea_id INT UNSIGNED,attachment VARCHAR(200),PRIMARY KEY(idea_id,attachment),FOREIGN KEY(idea_id) references
+idea(idea_id) ON DELETE CASCADE);
+
+/*SAMPLE INSERT STATEMENT*/
+insert into idea_attachment values(1,"C:/abc/somefile");
+
+/*CREATE APPROVAL TABLE NEXT*/
+create table approval(idea_id INT UNSIGNED NOT NULL,approving_user_id VARCHAR(30) NOT NULL,rating INT,level INT,comments TEXT,
+FOREIGN KEY(idea_id) references idea(idea_id) ON DELETE CASCADE,FOREIGN KEY(approving_user_id) references user(user_id));
+
+/*SAMPLE INSERT STATEMENT*/
+
+insert into approval values(1,'varun1',4,3,"Nice idea!");
+
+/*CREATE MESSAGE TABLE NEXT*/
+
+create table message(message_id INT UNSIGNED NOT NULL AUTO_INCREMENT,message_data TEXT,user_id VARCHAR(30) NOT NULL,
+sending_user_id VARCHAR(30) NOT NULL,PRIMARY KEY(message_id),FOREIGN KEY(user_id) references user(user_id) ON DELETE CASCADE,
+FOREIGN KEY(sending_user_id) references user(user_id));
+
+/*SAMPLE INSERT STATEMENT*/
+
+insert into message values(1,"Hi there!",'varun1','varun1');
+
+/*CREATE NOTIFICATIONS TABLE NEXT*/
+
+create table notifications(notification_id INT UNSIGNED NOT NULL AUTO_INCREMENT,user_id VARCHAR(30) NOT NULL,
+notification_data TEXT,PRIMARY KEY(notification_id),FOREIGN KEY(user_id) references user(user_id) ON DELETE CASCADE);  
+
+/*SAMPLE INSERT STATEMENT*/
+
+insert into notifications values(1,'varun1','You have 15 ides to approve');
+
+/*CREATE TABLE ROLES NEXT*/
+
+create table roles(role_id INT,role_name VARCHAR(50),PRIMARY KEY(role_id));
+insert into roles values(1,"superadmin");
+insert into roles values(2,"admin");
+insert into roles values(3,"normal");
+
+/*CREATE TABLE GROUP NEXT*/
+
+create table groups(group_id INT UNSIGNED NOT NULL AUTO_INCREMENT,group_name VARCHAR(50) NOT NULL,no_of_users INT,PRIMARY KEY(group_id,group_name));
+
+/*SAMPLE INSERT STATEMENT*/
+
+insert into groups values(1,'accounts',300);
+insert into groups values(2,'javacoe',500);
+
+/*CREATE TABLE USER_GROUP_ASSOCIATION NEXT*/
+
+create table user_group_asso( user_id VARCHAR(30) NOT NULL, group_id INT UNSIGNED NOT NULL, FOREIGN KEY(user_id) references
+user(user_id) ON DELETE CASCADE, FOREIGN KEY(group_id) references groups(group_id) ON DELETE CASCADE, PRIMARY KEY(user_id,group_id));
+
+/*SAMPLE INSERT STATEMENT*/
+
+insert into user_group_asso values('varun1',1);
+insert into user_group_asso values('varun1',2);
+insert into user_group_asso values('dhiwa1',1);
+insert into user_group_asso values('mal1',2);
+
+/*CREATE ADMIN TABLE NEXT*/
+
+create table user_role(user_id VARCHAR(30) NOT NULL,role_id INT,FOREIGN KEY(user_id) references user(user_id) ON DELETE CASCADE,
+FOREIGN KEY(role_id) references roles(role_id) ON DELETE CASCADE);
+
+insert into user_role values("dhiwa1",1);
+insert into user_role values("varun1",2);
+insert into user_role values("mal1",3);
+
+/*CREATE SCREENS TABLE NEXT*/
+
+create table screens(screen_id INT NOT NULL,screen_name VARCHAR(50),file_name VARCHAR(100),PRIMARY KEY(screen_id));
+
+/*FINALLY, CREATE A SUPER ADMIN TABLE*/
+
+create table superadmin(role_id INT,screen_id INT, FOREIGN KEY(role_id) references roles(role_id), FOREIGN KEY(screen_id)
+references screens(screen_id));
